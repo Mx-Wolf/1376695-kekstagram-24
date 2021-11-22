@@ -6,38 +6,57 @@ const Hashtag = {
   REGULAR_EXPRESSION: new RegExp(/^#[A-Za-zА-Яа-яЁё0-9]{1,19}$/),
 };
 
+function isFirstCharacterHash (value){
+  return value[0] === Hashtag.GRID;
+}
+function isTooSort (value){
+  return value.length < Hashtag.MIN_SIZE;
+}
+
+function isTooLong (value){
+  return value.length > Hashtag.MAX_SIZE;
+}
+
+function testWithRegExp (value){
+  return !Hashtag.REGULAR_EXPRESSION.test(value);
+}
+
+function hasSomeDuplicate (value, index, hashtags){
+  return hashtags.indexOf(value) !== index;
+}
+
 const objectForChecking = [
   {
     customValidity: false,
-    checkValue: (testedHashtag) => testedHashtag.length === 0,
+    checkValue: function (testedHashtag){ return testedHashtag.length === 0;},
   },
   {
     customValidity: `Нельзя указать больше ${Hashtag.AMOUNT} хэш-тегов`,
-    checkValue: (testedHashtag) => testedHashtag.length > Hashtag.AMOUNT,
+    checkValue: function (testedHashtag){return testedHashtag.length > Hashtag.AMOUNT;},
   },
   {
     customValidity: 'Хештег должен начинаться с символа #',
-    checkValue: (testedHashtag) => testedHashtag.some((value) => value[0] !== Hashtag.GRID),
+    checkValue: function (testedHashtag){return !testedHashtag.every(isFirstCharacterHash);},
   },
   {
     customValidity: 'Хештег не может состоять только из одной решётки',
-    checkValue: (testedHashtag) => testedHashtag.some((value) => value.length < Hashtag.MIN_SIZE),
+    checkValue: function (testedHashtag){return testedHashtag.some(isTooSort);},
   },
   {
     customValidity: `Максимальная длина одного хештега ${Hashtag.MAX_SIZE} символов, включая решётку`,
-    checkValue: (testedHashtag) => testedHashtag.some((value) => value.length > Hashtag.MAX_SIZE),
+    checkValue: function (testedHashtag){ return testedHashtag.some(isTooLong);},
   },
   {
     customValidity: 'Один и тот же хештег не может быть использован дважды',
-    checkValue: (testedHashtag) => testedHashtag.some((value, index, hashtags) => hashtags.indexOf(value) !== index),
+    checkValue: function (testedHashtag){return testedHashtag.some(hasSomeDuplicate);},
   },
   {
     customValidity: 'Cтрока после решётки должна состоять из букв и чисел и не может содержать пробелы, спецсимволы (#, @, $ и т. п.), символы пунктуации (тире, дефис, запятая и т. п.), эмодзи и т. д.',
-    checkValue: (testedHashtag) => testedHashtag.some((value) => !Hashtag.REGULAR_EXPRESSION.test(value)),
+    checkValue: function (testedHashtag){return testedHashtag.some(testWithRegExp);},
   },
   {
     customValidity: false,
-    checkValue: (testedHashtag) => testedHashtag,
+    checkValue: function (testedHashtag){ return  testedHashtag;},
   },
 ];
 

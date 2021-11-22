@@ -4,13 +4,28 @@ const uploadForm = document.querySelector('.img-upload__form');
 const hashTagInput = uploadForm.querySelector('.text__hashtags');
 const submitButton = uploadForm.querySelector('.img-upload__submit');
 
-const getArrayWithoutVoids = (data) =>
-  data.reduce((accumulator, value) => value === '' ? accumulator : [...accumulator, value], []);
+function excludeBlanks(accumulator, value){
+  return  value === '' ? accumulator : [...accumulator, value];
+}
 
-const checkForAnError = (testedHashtag) => objectForChecking.find(({checkValue}) => checkValue(testedHashtag));
+function getArrayWithoutVoids (data){
+  return data.reduce(excludeBlanks, []);
+}
+
+
+function checkForAnError (testedHashtag){
+  function checkRule({checkValue}){
+    return checkValue(testedHashtag);
+  }
+  objectForChecking.find(checkRule);
+}
+
+function makeLowerCase(value){
+  return value.toLowerCase();
+}
 
 function getHashTagsArray (inputValue)  {
-  const arrayOfHashtags = inputValue.split(' ').map(((value) => value.toLowerCase()));
+  const arrayOfHashtags = inputValue.split(' ').map(makeLowerCase);
   return getArrayWithoutVoids(arrayOfHashtags);
 }
 
@@ -25,23 +40,30 @@ function checkHashTags (hashtagsToCheck)  {
 }
 
 function deleteValidityMessages  (input) {
-  input.addEventListener('input', () => {
+  function handleInput (){
     input.setCustomValidity('');
-  });
+  }
+  input.addEventListener('input', handleInput);
+}
+
+function handleFormInvalid (evt){
+  evt.target.style.border = '3px solid red';
+}
+
+function handleFormInput (evt){
+  evt.target.style.border = '';
 }
 
 export function checkLoadForm () {
   deleteValidityMessages(hashTagInput);
 
-  submitButton.addEventListener('click', () => {
+  function handleSubmitButtonClick(){
     checkHashTags(hashTagInput.value);
-  });
+  }
 
-  uploadForm.addEventListener('invalid', (evt) => {
-    evt.target.style.border = '3px solid red';
-  }, true);
+  submitButton.addEventListener('click', handleSubmitButtonClick);
 
-  uploadForm.addEventListener('input', (evt) => {
-    evt.target.style.border = '';
-  });
+  uploadForm.addEventListener('invalid', handleFormInvalid, true);
+
+  uploadForm.addEventListener('input', handleFormInput);
 }

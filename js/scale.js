@@ -14,7 +14,7 @@ noUiSlider.create(sliderElement, {
   connect: 'lower',
 });
 
-sliderElement.noUiSlider.on('update', (...values) => {
+function handleSliderUpdate(...values){
   switch (imgUploadPreview.classList[0]) {
     case 'effects__preview--chrome':
       imgUploadPreview.style.filter = `grayscale(${values[0]})`;
@@ -33,7 +33,9 @@ sliderElement.noUiSlider.on('update', (...values) => {
       break;
     default:
   }
-});
+}
+
+sliderElement.noUiSlider.on('update', handleSliderUpdate);
 
 function updateSlider (min, max, step, start) {
   sliderElement.noUiSlider.updateOptions({
@@ -47,7 +49,7 @@ function updateSlider (min, max, step, start) {
   });
 }
 
-effectsList.addEventListener('click', (evt) => {
+function handleEffectsListClick(evt){
   const chosenFilter = evt.target.value;
 
   switch (chosenFilter) {
@@ -93,4 +95,6 @@ effectsList.addEventListener('click', (evt) => {
       break;
     default:
   }
-});
+}
+
+effectsList.addEventListener('click', handleEffectsListClick);

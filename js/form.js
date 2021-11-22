@@ -21,7 +21,7 @@ function closeModalForm (){
   imgUploadOverlay.classList.add('hidden');
   body.classList.remove('modal-open');
   loadForm.value = '';
-  document.removeEventListener('keydown', handleEscapeKeydown);
+  document.removeEventListener('keydown', handleDocumentKeydown);
 }
 
 function handleFileUploadChange(){
@@ -35,17 +35,20 @@ function handleFileUploadChange(){
   body.classList.add('modal-open');
   checkLoadForm();
 
-  document.addEventListener('keydown', handleEscapeKeydown);
+  document.addEventListener('keydown', handleDocumentKeydown);
 
 }
 
-function handleEscapeKeydown (evt) {
-  onEscKeyDown(evt,()=>{
+function handleDocumentKeydown (evt) {
+
+  function executeEscRule(){
     const element = evt.target;
     if(!element.matches('.text__hashtags') && !element.matches('.text__description')){
       closeModalForm();
     }
-  });
+  }
+
+  onEscKeyDown(evt,executeEscRule);
 }
 
 function setNewScale (scaleValue) {
@@ -69,7 +72,7 @@ function increaseScaleValue (value) {
   return increasedValue;
 }
 
-function scaleControlSmallerClickHandler () {
+function handleScaleControlSmallerClick () {
   const scaleValue = getValue();
 
   if (scaleValue > SCALE_MIN_VALUE) {
@@ -79,7 +82,7 @@ function scaleControlSmallerClickHandler () {
   }
 }
 
-function scaleControlBiggerClickHandler () {
+function handleScaleControlBiggerClick () {
   const scaleValue = getValue();
 
   if (scaleValue < SCALE_MAX_VALUE) {
@@ -104,11 +107,11 @@ function manageMessage(cloned){
   function closeMessage () {
     body.removeChild(cloned);
     document.removeEventListener('keydown', handleLocalEscapeKeydown);
-    document.removeEventListener('click', handleAnyMouseClick);
+    document.removeEventListener('click', handleDocumentMouseClick);
     resetForm();
   }
 
-  function handleAnyMouseClick () {
+  function handleDocumentMouseClick () {
     closeMessage();
   }
 
@@ -117,7 +120,7 @@ function manageMessage(cloned){
   }
 
   document.addEventListener('keydown', handleLocalEscapeKeydown);
-  document.addEventListener('click', handleAnyMouseClick);
+  document.addEventListener('click', handleDocumentMouseClick);
 }
 
 function showSuccessMessage () {
@@ -126,6 +129,13 @@ function showSuccessMessage () {
 
 function showFailMessage () {
   manageMessage(cloneMessage('#error'));
+}
+
+function handleDataResponse(response){
+  if (!response.ok) {
+    throw new Error();
+  }
+  showSuccessMessage();
 }
 
 function handleFormSubmit (evt){
@@ -140,19 +150,17 @@ function handleFormSubmit (evt){
       body: formData,
     },
   )
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error();
-      }
-      showSuccessMessage();
-    })
+    .then(handleDataResponse)
     .catch(showFailMessage);
+}
+function handleCloseButtonClick(){
+  closeModalForm();
 }
 
 imgUploadForm.addEventListener('submit', handleFormSubmit);
-scaleControlSmaller.addEventListener('click', scaleControlSmallerClickHandler);
-scaleControlBigger.addEventListener('click', scaleControlBiggerClickHandler);
+scaleControlSmaller.addEventListener('click', handleScaleControlSmallerClick);
+scaleControlBigger.addEventListener('click', handleScaleControlBiggerClick);
 loadForm.addEventListener('change',handleFileUploadChange);
-closeButton.addEventListener('click', () => closeModalForm());
+closeButton.addEventListener('click', handleCloseButtonClick);
 
 export {imgUploadOverlay, imgUploadPreview, effectsLevel};

@@ -8,13 +8,14 @@ const closeButton = popup.querySelector('.big-picture__cancel');
 const socialComments = popup.querySelector('.social__comments');
 const commentTemplate = popup.querySelector('.social__comment').cloneNode(true);
 
-function photoListHandler (pictures, array) {
-  pictures.forEach((picture) => {
-    picture.addEventListener('click', (evt) => {
-
-      findChosenPhoto(evt, array);
-    });
-  });
+function initializePhotoListEvents (pictures, photos) {
+  function preparePicture(picture){
+    function prepareChosenPhoto(evt){
+      findChosenPhoto(evt, photos);
+    }
+    picture.addEventListener('click',prepareChosenPhoto);
+  }
+  pictures.forEach(preparePicture);
 }
 
 function closePopup () {
@@ -67,7 +68,7 @@ function renderComment (comment) {
 }
 
 function appendCommentElements(comments) {
-  comments.forEach((element) => renderComment(element));
+  comments.forEach(renderComment);
 }
 
 function getShowingCount(comments,nextCommentIndex){
@@ -116,9 +117,12 @@ function findChosenPhoto (evt, photos) {
   }
 
   const photoId = target.closest('.picture').id;
-  const currentPhoto = photos.find((element) => Number(element.id) === Number(photoId));
+  function isIdEqual(element){
+    return Number(element.id) === Number(photoId);
+  }
+  const currentPhoto = photos.find(isIdEqual);
 
   renderPopup(currentPhoto);
 }
 
-export {photoListHandler};
+export {initializePhotoListEvents};

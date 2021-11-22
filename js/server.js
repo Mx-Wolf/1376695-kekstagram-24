@@ -1,12 +1,17 @@
 import {renderPhotos} from './render.js';
 import {shuffleArray} from './utils.js';
 
+const ERROR_SHOW_TIMEOUT = 5000;
+const RANDOM_SLICE = 10;
 const imgFilterSection = document.querySelector('.img-filters');
 
 function showErrorLoadMessage () {
   const errorLoadMessage = document.querySelector('section.error');
   errorLoadMessage.classList.remove('hidden');
-  setTimeout(() => errorLoadMessage.classList.add('hidden'), 5000);
+  function removeMessage(){
+    errorLoadMessage.classList.add('hidden');
+  }
+  setTimeout(removeMessage, ERROR_SHOW_TIMEOUT);
 }
 
 function renderServerPhotos() {
@@ -24,7 +29,7 @@ function renderRandomServerPhotos() {
     .then((response) => response.json())
     .then((data) => {
       renderPhotos(
-        shuffleArray(data).slice(0,10),
+        shuffleArray(data).slice(0,RANDOM_SLICE),
       );
       imgFilterSection.classList.remove('img-filters--inactive');
     });
@@ -35,11 +40,7 @@ function renderMostCommentServerPhotos() {
     .then((response) => response.json())
     .then((data) => {
       renderPhotos(
-        data.sort((a, b) => {
-          if (a.comments.length > b.comments.length) {return -1;}
-          if (a.comments.length < b.comments.length) {return 1;}
-          return 0;
-        }),
+        data.sort((a, b) => b.comments.length - a.comments.length),
       );
       imgFilterSection.classList.remove('img-filters--inactive');
     });
